@@ -1,0 +1,598 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "",
+                    "rightValue": "Deposit",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "2db11d9c-35fd-413a-9530-b31b5d43c756"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": "={{ $json.request_type }}"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "f3f8f780-5941-45fe-b2f4-0c60ebc322e5",
+                    "leftValue": "",
+                    "rightValue": "withdrawal",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "eef7200f-849c-4854-b929-2a5a989812f0",
+                    "leftValue": "",
+                    "rightValue": "Loan",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "bd006dac-3d2d-4b69-bf6d-a85870d62ef8",
+                    "leftValue": "",
+                    "rightValue": "Adding User to Account",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        -1968,
+        288
+      ],
+      "id": "e1b87873-f38c-46e7-9ee3-cf42c75cd1ca",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a banking operations assistant. Review the following customer request details and summarize it for an administrative email notification:\n\n- Customer Name: {{ $json[\"Customer Name\"] }}\n- Customer ID Number: {{ $json[\"Customer ID Number\"] }}\n- Request Type: {{ $json[\"Customer Request \"] }}\n- Amount: {{ $json[\"Amount\"] }}\n- Adding New User to Account: {{ $json[\"Adding New User to the account\"] }}\n- Additional Notes: {{ $json[\"Additional Notes\"] }}\n\nInstructions:\nGenerate a clear, professional summary email for this transaction. \n\nYou must output your response in this exact format:\nCUSTOMER NAME: [Insert Customer Name]\nCUSTOMER ID: [Insert Customer ID Number]\nOPERATION TYPE: [Insert Request Type]\nDETAILS: [1-2 short sentences summarizing the amount or notes provided]\nSTATUS: [APPROVED / PROCESSED]",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=You are the Senior Cred{{ $json['Customer Name'] }}it Risk Officer for the bank. Revi{{ $json['Customer Request '] }}e{{ $json.Amount }}w {{ $json['Customer ID Number'] }}{{ $json[\"Adding New User to the account\"] }}"
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        -1664,
+        224
+      ],
+      "id": "e4ff4e3d-563d-45b1-9689-d5b9852e6137",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "model": "=qwen2.5:3b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        -1680,
+        432
+      ],
+      "id": "bbfca0c0-140a-4c5e-9ec5-964eaa7eb926",
+      "name": "Ollama Chat Model",
+      "credentials": {
+        "ollamaApi": {
+          "id": "Mw3MUE7W5vzzNiLj",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 15,
+              "triggerAtMinute": 30
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -2464,
+        656
+      ],
+      "id": "eecbf679-183d-47fd-9ed9-5a1f14742ad5",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "sendTo": "aboutlifelove88@gmail.com",
+        "subject": "New Bank Operation",
+        "message": "={{ $json.text }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        -1344,
+        240
+      ],
+      "id": "06b9999e-c1c0-4a01-8ab4-d8918f9a572e",
+      "name": "Send a message",
+      "webhookId": "2fc75910-f1db-4491-a7ec-b6443256ca86",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "FkzRZbYQe28WUCsU",
+          "name": "Gmail account"
+        }
+      },
+      "notes": "This is the customer request today ."
+    },
+    {
+      "parameters": {
+        "formTitle": "Customers Request",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Customer Name",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Customer Account Number ",
+              "fieldType": "number",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Customer ID Number",
+              "fieldType": "number",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Customer Request ",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Deposit"
+                  },
+                  {
+                    "option": "Withdrawal"
+                  },
+                  {
+                    "option": "Loan"
+                  },
+                  {
+                    "option": "Adding New User to the account"
+                  }
+                ]
+              },
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Amount",
+              "fieldType": "number",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Adding New User to the account"
+            },
+            {
+              "fieldLabel": "Additional Notes"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.6,
+      "position": [
+        -2464,
+        256
+      ],
+      "id": "d06eab6d-0baa-42d0-8a78-e0ff88c9af16",
+      "name": "On form submission",
+      "webhookId": "ce5cfdc3-2a16-4ecc-a3ab-059ac1dc0e03"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1sHBsxdbxIimVxHnzF9UiDzh4ifuRXZ0X0PIdpGdq1-s",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Sheet1",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Customer Name",
+              "displayName": "Customer Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Customer Account Number",
+              "displayName": "Customer Account Number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Customer ID Number",
+              "displayName": "Customer ID Number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Customer Request",
+              "displayName": "Customer Request",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Amount",
+              "displayName": "Amount",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Additional Notes",
+              "displayName": "Additional Notes",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Customer Account Number ",
+              "displayName": "Customer Account Number ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Customer Request ",
+              "displayName": "Customer Request ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Adding New User to the account",
+              "displayName": "Adding New User to the account",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "submittedAt",
+              "displayName": "submittedAt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "formMode",
+              "displayName": "formMode",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -2256,
+        272
+      ],
+      "id": "a11dbb38-7a50-430e-bdba-186eb72b6e31",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "5AsQpkvuvP6HmSoP",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "aboutlifelove88@gmail.com",
+        "subject": "Bank Operation Summary ",
+        "message": "=Dear Sir, this is today {{ $now.toFormat('yyyy-MM-dd') }} bank operations summary:\n\n{{ $json.summary }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        -1600,
+        704
+      ],
+      "id": "b1d1b009-b50c-460d-bf78-9190461c1c32",
+      "name": "Send a message1",
+      "webhookId": "debdd1a1-b4a5-4d84-94c0-e32796f83f8c",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "FkzRZbYQe28WUCsU",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1sHBsxdbxIimVxHnzF9UiDzh4ifuRXZ0X0PIdpGdq1-s",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Sheet1",
+          "mode": "name"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -2208,
+        656
+      ],
+      "id": "eed8422f-2a3a-4fc8-956f-5cc236f7ae24",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "5AsQpkvuvP6HmSoP",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nconst todayDateStr = \"2026-10-18\";\n\nconst todayItems = items.filter(item => {\n    const data = item.json;\n    const submitted = String(data[\"submittedAt\"] || data[\"timestamp\"] || \"\");\n    const readable = String(data[\"Readable date\"] || \"\");\n    return submitted.includes(todayDateStr) || readable.includes(\"October 18th 2026\");\n});\n\nlet totalRequests = todayItems.length;\n\nlet depositList = [];\nlet depositTotal = 0;\n\nlet withdrawalList = [];\nlet withdrawalTotal = 0;\n\nlet loanList = [];\nlet loanTotal = 0;\n\nlet newUsersList = [];\n\ntodayItems.forEach(item => {\n    const data = item.json;\n    const customerName = data[\"Customer Name\"] || \"Unknown Customer\";\n    \n    const req1 = String(data[\"Customer Request\"] || \"\").toLowerCase();\n    const req2 = String(data[\"Customer Request \"] || \"\").toLowerCase();\n    const notes = String(data[\"Additional Notes\"] || \"\").toLowerCase();\n    const newUserField = String(data[\"Adding New User to the account\"] || \"\").trim();\n\n    const combinedText = `${req1} ${req2} ${notes} ${newUserField}`.toLowerCase();\n\n    const rawAmount = data[\"Amount\"] || 0;\n    const amount = parseFloat(String(rawAmount).replace(/[^0-9.-]+/g, \"\")) || 0;\n\n    if (combinedText.includes(\"deposit\")) {\n        depositList.push(`${customerName} ($${amount.toLocaleString()})`);\n        depositTotal += amount;\n    } \n    if (combinedText.includes(\"withdrawal\") || combinedText.includes(\"withdraw\")) {\n        withdrawalList.push(`${customerName} ($${amount.toLocaleString()})`);\n        withdrawalTotal += amount;\n    } \n    if (combinedText.includes(\"loan\") || combinedText.includes(\"borrow\")) {\n        loanList.push(`${customerName} ($${amount.toLocaleString()})`);\n        loanTotal += amount;\n    } \n    if (combinedText.includes(\"new user\") || combinedText.includes(\"adding new user\") || newUserField !== \"\") {\n        newUsersList.push(customerName);\n    }\n});\n\n// Format with points under points displaying names/details\nconst masterSummary = `\n• Total Operations Processed (${totalRequests})\n\n• Deposit Operations (${depositList.length} - Total: $${depositTotal.toLocaleString()}):\n${depositList.length > 0 ? depositList.map(name => `  - ${name}`).join('\\n') : '  - None'}\n\n• Withdrawal Operations (${withdrawalList.length} - Total: $${withdrawalTotal.toLocaleString()}):\n${withdrawalList.length > 0 ? withdrawalList.map(name => `  - ${name}`).join('\\n') : '  - None'}\n\n• Loan Operations (${loanList.length} - Total: $${loanTotal.toLocaleString()}):\n${loanList.length > 0 ? loanList.map(name => `  - ${name}`).join('\\n') : '  - None'}\n\n• New User Accounts Added (${newUsersList.length}):\n${newUsersList.length > 0 ? newUsersList.map(name => `  - ${name}`).join('\\n') : '  - None'}\n`.trim();\n\nreturn [{ json: { summary: masterSummary } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1936,
+        688
+      ],
+      "id": "6a401a8a-5afd-453f-8d22-0ca7fc2ef9eb",
+      "name": "Code in JavaScript"
+    }
+  ],
+  "connections": {
+    "Switch": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        []
+      ]
+    },
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Send a message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "9dc871dcac2dff8390abe6a3841ab317a6b57b189cdd69225d21c571769fe03b"
+  }
+}
